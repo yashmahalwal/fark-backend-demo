@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+package user;
+
+service UserService {
+  rpc GetUser(GetUserRequest) returns (UserResponse);
+  rpc CreateUser(CreateUserRequest) returns (UserResponse);
+  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse);
+}
+
+enum UserStatus {
+  USER_STATUS_ACTIVE = 0;
+  USER_STATUS_INACTIVE = 1;
+  USER_STATUS_PENDING = 2;
+}
+
+enum PaymentMethod {
+  PAYMENT_METHOD_CREDIT_CARD = 0;
+  PAYMENT_METHOD_DEBIT_CARD = 1;
+  PAYMENT_METHOD_PAYPAL = 2;
+}
+
+message GetUserRequest {
+  int32 id = 1;
+}
+
+message CreateUserRequest {
+  string email = 1;
+  string name = 2;
+  UserStatus status = 3;
+  optional string description = 4;
+  map<string, string> metadata = 5;
+  repeated string tags = 6;
+  PaymentMethod payment_method = 7;
+}
+
+message ListUsersRequest {
+  int32 page = 1;
+  int32 page_size = 2;
+}
+
+message UserResponse {
+  int32 id = 1;
+  string email = 2;
+  string name = 3;
+  UserStatus status = 4;
+  optional string description = 5;
+  map<string, string> metadata = 6;
+  repeated string tags = 7;
+  PaymentMethod payment_method = 8;
+}
+
+message ListUsersResponse {
+  repeated UserResponse users = 1;
+  int32 total = 2;
+}
+

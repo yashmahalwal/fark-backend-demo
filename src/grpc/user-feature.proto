@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+package user;
+
+service UserService {
+  rpc GetUser(GetUserRequest) returns (UserResponse);
+  rpc CreateUser(CreateUserRequest) returns (UserResponse);
+  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse); # BREAKING: page_size parameter removed
+}
+
+enum UserStatus {
+  USER_STATUS_ACTIVE = 0;
+  USER_STATUS_INACTIVE = 1;
+  # USER_STATUS_PENDING removed - BREAKING CHANGE
+  USER_STATUS_SUSPENDED = 3; # Added - BREAKING CHANGE
+}
+
+enum PaymentMethod {
+  PAYMENT_METHOD_CREDIT_CARD = 0;
+  PAYMENT_METHOD_DEBIT_CARD = 1;
+  PAYMENT_METHOD_PAYPAL = 2;
+  PAYMENT_METHOD_BANK_TRANSFER = 3; # Added - BREAKING CHANGE
+}
+
+message GetUserRequest {
+  int32 id = 1;
+}
+
+message CreateUserRequest {
+  string email = 1;
+  string name = 2;
+  UserStatus status = 3 [default = USER_STATUS_INACTIVE]; # BREAKING: default changed from ACTIVE to INACTIVE
+  optional string description = 4;
+  map<string, string> metadata = 5;
+  string tag = 6; # BREAKING: changed from repeated string tags to single string tag
+  PaymentMethod payment_method = 7;
+  string phone_number = 8; # Added required field - BREAKING CHANGE
+}
+
+message ListUsersRequest {
+  int32 page = 1;
+  # page_size removed - BREAKING CHANGE
+}
+
+message UserResponse {
+  int32 id = 1;
+  string email = 2;
+  string name = 3;
+  UserStatus status = 4;
+  optional string description = 5;
+  map<string, string> metadata = 6;
+  string tag = 7; # BREAKING: changed from repeated string tags to single string tag
+  PaymentMethod payment_method = 8;
+  string phone_number = 9; # Added required field - BREAKING CHANGE
+}
+
+message ListUsersResponse {
+  repeated UserResponse users = 1;
+  int32 total = 2;
+}
+
