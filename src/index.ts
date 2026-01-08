@@ -18,6 +18,14 @@ const GRPC_PORT = process.env.GRPC_PORT || 50051;
 // Initialize database
 getDatabase();
 
+// CORS for all routes
+app.use(
+  cors({
+    origin: ["http://localhost:5173", "http://localhost:3000"],
+    credentials: true,
+  })
+);
+
 // REST API
 app.use(express.json());
 app.use("/api", restRoutes);
@@ -31,12 +39,7 @@ const apolloServer = new ApolloServer({
 async function startServer() {
   await apolloServer.start();
 
-  app.use(
-    "/graphql",
-    cors<cors.CorsRequest>(),
-    express.json(),
-    expressMiddleware(apolloServer)
-  );
+  app.use("/graphql", express.json(), expressMiddleware(apolloServer));
 
   // Start REST/GraphQL server
   app.listen(PORT, () => {

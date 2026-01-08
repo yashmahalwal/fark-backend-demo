@@ -30,6 +30,16 @@ export const typeDefs = gql`
     email: String!
   }
 
+  input PaymentMethodInput {
+    # CreditCard fields
+    type: String
+    last4: String
+    # DebitCard fields
+    bank: String
+    # PayPal fields
+    email: String
+  }
+
   type User {
     id: ID!
     email: String!
@@ -76,6 +86,7 @@ export const typeDefs = gql`
     user(id: ID!): User
     users: [User!]!
     order(id: ID!): Order
+    orders: [Order!]!
     products: [Product!]!
   }
 
@@ -87,8 +98,65 @@ export const typeDefs = gql`
       description: String
       metadata: JSON
       tags: [String!]!
-      paymentMethod: PaymentMethod!
+      paymentMethod: PaymentMethodInput!
     ): User!
+    updateUser(
+      id: ID!
+      email: String!
+      name: String!
+      status: UserStatus!
+      description: String
+      metadata: JSON
+      tags: [String!]!
+      paymentMethod: PaymentMethodInput!
+    ): User!
+    deleteUser(id: ID!): Boolean!
+    createProduct(
+      name: String!
+      price: Float!
+      category: String!
+      inStock: Boolean!
+      specifications: [ProductSpecInput!]!
+    ): Product!
+    updateProduct(
+      id: ID!
+      name: String!
+      price: Float!
+      category: String!
+      inStock: Boolean!
+      specifications: [ProductSpecInput!]!
+    ): Product!
+    deleteProduct(id: ID!): Boolean!
+    createOrder(
+      userId: ID!
+      productIds: [ID!]!
+      status: OrderStatus!
+      total: Float!
+      discountCode: String
+      shippingAddress: AddressInput!
+    ): Order!
+    updateOrder(
+      id: ID!
+      userId: ID!
+      productIds: [ID!]!
+      status: OrderStatus!
+      total: Float!
+      discountCode: String
+      shippingAddress: AddressInput!
+    ): Order!
+    deleteOrder(id: ID!): Boolean!
+  }
+
+  input ProductSpecInput {
+    key: String!
+    value: String!
+  }
+
+  input AddressInput {
+    street: String!
+    city: String!
+    zipCode: String!
+    country: String!
   }
 
   scalar JSON
