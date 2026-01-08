@@ -5,6 +5,7 @@ export const typeDefs = gql`
     ACTIVE
     INACTIVE
     PENDING
+    SUSPENDED
   }
 
   enum OrderStatus {
@@ -45,8 +46,7 @@ export const typeDefs = gql`
     email: String!
     name: String!
     status: UserStatus!
-    description: String
-    metadata: JSON
+    description: String!
     tags: [String!]!
     paymentMethod: PaymentMethod!
   }
@@ -95,8 +95,7 @@ export const typeDefs = gql`
       email: String!
       name: String!
       status: UserStatus!
-      description: String
-      metadata: JSON
+      description: String!
       tags: [String!]!
       paymentMethod: PaymentMethodInput!
     ): User!
@@ -105,8 +104,7 @@ export const typeDefs = gql`
       email: String!
       name: String!
       status: UserStatus!
-      description: String
-      metadata: JSON
+      description: String!
       tags: [String!]!
       paymentMethod: PaymentMethodInput!
     ): User!
