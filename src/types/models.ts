@@ -3,6 +3,7 @@ export enum UserStatus {
   ACTIVE = "ACTIVE",
   INACTIVE = "INACTIVE",
   PENDING = "PENDING",
+  SUSPENDED = "SUSPENDED",
 }
 
 export enum OrderStatus {
@@ -16,11 +17,10 @@ export type PaymentMethod = "CREDIT_CARD" | "DEBIT_CARD" | "PAYPAL";
 
 export interface User {
   id: number;
-  email: string;
+  emailAddress: string; // renamed from email
   name: string;
   status: UserStatus;
-  description: string | null; // nullable field
-  metadata: Record<string, any>; // object structure
+  description: string; // now required (was nullable)
   tags: string[]; // array structure
   paymentMethod: PaymentMethod; // union type (will extend)
 }
