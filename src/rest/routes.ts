@@ -22,11 +22,10 @@ router.get("/users/:id", (req: Request, res: Response) => {
 
       const user: User = {
         id: row.id,
-        email: row.email,
+        emailAddress: row.email,
         name: row.name,
         status: row.status as UserStatus,
         description: row.description,
-        metadata: JSON.parse(row.metadata || "{}"),
         tags: JSON.parse(row.tags || "[]"),
         paymentMethod: row.payment_method as any,
       };
@@ -39,18 +38,18 @@ router.get("/users/:id", (req: Request, res: Response) => {
 // POST /api/users
 router.post("/users", (req: Request, res: Response) => {
   const db = getDatabase();
-  const { email, name, status, description, metadata, tags, paymentMethod } =
+  const { emailAddress, name, status, description, tags, paymentMethod } =
     req.body;
 
   // Validation
-  if (!email || !name || !status || !paymentMethod) {
+  if (!emailAddress || !name || !status || !description || !paymentMethod) {
     return res.status(400).json({
       error: "Missing required fields",
-      required: ["email", "name", "status", "paymentMethod"],
+      required: ["emailAddress", "name", "status", "description", "paymentMethod"],
     });
   }
 
-  const validStatuses = ["ACTIVE", "INACTIVE", "PENDING"];
+  const validStatuses = ["ACTIVE", "INACTIVE", "PENDING", "SUSPENDED"];
   if (!validStatuses.includes(status)) {
     return res.status(400).json({
       error: `Invalid status. Must be one of: ${validStatuses.join(", ")}`,
@@ -65,13 +64,12 @@ router.post("/users", (req: Request, res: Response) => {
   }
 
   db.run(
-    "INSERT INTO users (email, name, status, description, metadata, tags, payment_method) VALUES (?, ?, ?, ?, ?, ?, ?)",
+    "INSERT INTO users (email, name, status, description, tags, payment_method) VALUES (?, ?, ?, ?, ?, ?)",
     [
-      email,
+      emailAddress,
       name,
       status,
-      description || null,
-      JSON.stringify(metadata || {}),
+      description,
       JSON.stringify(tags || []),
       paymentMethod,
     ],
@@ -119,18 +117,18 @@ router.get("/orders/:id", (req: Request, res: Response) => {
 router.put("/users/:id", (req: Request, res: Response) => {
   const db = getDatabase();
   const userId = parseInt(req.params.id);
-  const { email, name, status, description, metadata, tags, paymentMethod } =
+  const { emailAddress, name, status, description, tags, paymentMethod } =
     req.body;
 
   // Validation
-  if (!email || !name || !status || !paymentMethod) {
+  if (!emailAddress || !name || !status || !description || !paymentMethod) {
     return res.status(400).json({
       error: "Missing required fields",
-      required: ["email", "name", "status", "paymentMethod"],
+      required: ["emailAddress", "name", "status", "description", "paymentMethod"],
     });
   }
 
-  const validStatuses = ["ACTIVE", "INACTIVE", "PENDING"];
+  const validStatuses = ["ACTIVE", "INACTIVE", "PENDING", "SUSPENDED"];
   if (!validStatuses.includes(status)) {
     return res.status(400).json({
       error: `Invalid status. Must be one of: ${validStatuses.join(", ")}`,
@@ -145,13 +143,12 @@ router.put("/users/:id", (req: Request, res: Response) => {
   }
 
   db.run(
-    "UPDATE users SET email = ?, name = ?, status = ?, description = ?, metadata = ?, tags = ?, payment_method = ? WHERE id = ?",
+    "UPDATE users SET email = ?, name = ?, status = ?, description = ?, tags = ?, payment_method = ? WHERE id = ?",
     [
-      email,
+      emailAddress,
       name,
       status,
-      description || null,
-      JSON.stringify(metadata || {}),
+      description,
       JSON.stringify(tags || []),
       paymentMethod,
       userId,
@@ -195,11 +192,10 @@ router.get("/users", (req: Request, res: Response) => {
 
     const users: User[] = rows.map((row) => ({
       id: row.id,
-      email: row.email,
+      emailAddress: row.email,
       name: row.name,
       status: row.status as UserStatus,
       description: row.description,
-      metadata: JSON.parse(row.metadata || "{}"),
       tags: JSON.parse(row.tags || "[]"),
       paymentMethod: row.payment_method as any,
     }));
