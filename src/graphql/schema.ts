@@ -65,11 +65,19 @@ export const typeDefs = gql`
     value: String!
   }
 
-  type Address {
+  type Location {
     street: String!
     city: String!
+  }
+
+  type Postal {
     zipCode: String!
     country: String!
+  }
+
+  type Address {
+    location: Location!
+    postal: Postal!
   }
 
   type Order {
@@ -152,11 +160,19 @@ export const typeDefs = gql`
     value: String!
   }
 
-  input AddressInput {
+  input LocationInput {
     street: String!
     city: String!
+  }
+
+  input PostalInput {
     zipCode: String!
     country: String!
+  }
+
+  input AddressInput {
+    location: LocationInput!
+    postal: PostalInput!
   }
 
   scalar JSON
