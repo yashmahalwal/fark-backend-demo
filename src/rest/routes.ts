@@ -100,6 +100,7 @@ router.get("/orders/:id", (req: Request, res: Response) => {
         return res.status(404).json({ error: "Order not found" });
       }
 
+      const addressData = JSON.parse(row.shipping_address || "{}");
       const order: Order = {
         id: row.id,
         userId: row.user_id,
@@ -107,7 +108,16 @@ router.get("/orders/:id", (req: Request, res: Response) => {
         status: row.status as OrderStatus,
         total: row.total,
         discountCode: row.discount_code,
-        shippingAddress: JSON.parse(row.shipping_address || "{}"),
+        shippingAddress: {
+          location: {
+            street: addressData.location?.street || addressData.street || "",
+            city: addressData.location?.city || addressData.city || "",
+          },
+          postal: {
+            zipCode: addressData.postal?.zipCode || addressData.zipCode || "",
+            country: addressData.postal?.country || addressData.country || "",
+          },
+        },
       };
 
       res.json(order);
@@ -320,15 +330,27 @@ router.get("/orders", (req: Request, res: Response) => {
       return res.status(500).json({ error: err.message });
     }
 
-    const orders: Order[] = rows.map((row) => ({
-      id: row.id,
-      userId: row.user_id,
-      productIds: JSON.parse(row.product_ids),
-      status: row.status as OrderStatus,
-      total: row.total,
-      discountCode: row.discount_code,
-      shippingAddress: JSON.parse(row.shipping_address || "{}"),
-    }));
+    const orders: Order[] = rows.map((row) => {
+      const addressData = JSON.parse(row.shipping_address || "{}");
+      return {
+        id: row.id,
+        userId: row.user_id,
+        productIds: JSON.parse(row.product_ids),
+        status: row.status as OrderStatus,
+        total: row.total,
+        discountCode: row.discount_code,
+        shippingAddress: {
+          location: {
+            street: addressData.location?.street || addressData.street || "",
+            city: addressData.location?.city || addressData.city || "",
+          },
+          postal: {
+            zipCode: addressData.postal?.zipCode || addressData.zipCode || "",
+            country: addressData.postal?.country || addressData.country || "",
+          },
+        },
+      };
+    });
 
     res.json(orders);
   });
@@ -343,6 +365,13 @@ router.post("/orders", (req: Request, res: Response) => {
     return res.status(400).json({
       error: "Missing required fields",
       required: ["userId", "productIds", "status", "total"],
+    });
+  }
+
+  if (!shippingAddress || !shippingAddress.location || !shippingAddress.postal) {
+    return res.status(400).json({
+      error: "Missing required fields",
+      required: ["shippingAddress.location", "shippingAddress.postal"],
     });
   }
 
@@ -361,7 +390,7 @@ router.post("/orders", (req: Request, res: Response) => {
       status,
       total,
       discountCode || null,
-      JSON.stringify(shippingAddress || {}),
+      JSON.stringify(shippingAddress),
     ],
     function (err) {
       if (err) {
@@ -385,6 +414,13 @@ router.put("/orders/:id", (req: Request, res: Response) => {
     });
   }
 
+  if (!shippingAddress || !shippingAddress.location || !shippingAddress.postal) {
+    return res.status(400).json({
+      error: "Missing required fields",
+      required: ["shippingAddress.location", "shippingAddress.postal"],
+    });
+  }
+
   const validStatuses = ["CREATED", "PROCESSING", "SHIPPED", "DELIVERED"];
   if (!validStatuses.includes(status)) {
     return res.status(400).json({
@@ -400,7 +436,7 @@ router.put("/orders/:id", (req: Request, res: Response) => {
       status,
       total,
       discountCode || null,
-      JSON.stringify(shippingAddress || {}),
+      JSON.stringify(shippingAddress),
       orderId,
     ],
     function (err) {
