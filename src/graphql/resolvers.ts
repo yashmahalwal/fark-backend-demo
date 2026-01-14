@@ -19,7 +19,6 @@ export const resolvers = {
               name: row.name,
               status: row.status,
               description: row.description,
-              metadata: JSON.parse(row.metadata || "{}"),
               tags: JSON.parse(row.tags || "[]"),
               paymentMethod: row.payment_method, // payment_method is stored as string, not JSON
             });
@@ -39,7 +38,6 @@ export const resolvers = {
               name: row.name,
               status: row.status,
               description: row.description,
-              metadata: JSON.parse(row.metadata || "{}"),
               tags: JSON.parse(row.tags || "[]"),
               paymentMethod: row.payment_method, // payment_method is stored as string, not JSON
             }))
@@ -135,13 +133,12 @@ export const resolvers = {
       
       return new Promise((resolve, reject) => {
         db.run(
-          "INSERT INTO users (email, name, status, description, metadata, tags, payment_method) VALUES (?, ?, ?, ?, ?, ?, ?)",
+          "INSERT INTO users (email, name, status, description, tags, payment_method) VALUES (?, ?, ?, ?, ?, ?)",
           [
             args.email,
             args.name,
             args.status,
-            args.description || null,
-            JSON.stringify(args.metadata || {}),
+            args.description,
             JSON.stringify(args.tags || []),
             paymentMethodStr,
           ],
@@ -180,13 +177,12 @@ export const resolvers = {
       
       return new Promise((resolve, reject) => {
         db.run(
-          "UPDATE users SET email = ?, name = ?, status = ?, description = ?, metadata = ?, tags = ?, payment_method = ? WHERE id = ?",
+          "UPDATE users SET email = ?, name = ?, status = ?, description = ?, tags = ?, payment_method = ? WHERE id = ?",
           [
             args.email,
             args.name,
             args.status,
-            args.description || null,
-            JSON.stringify(args.metadata || {}),
+            args.description,
             JSON.stringify(args.tags || []),
             paymentMethodStr,
             args.id,
@@ -371,6 +367,7 @@ export const resolvers = {
     ACTIVE: UserStatus.ACTIVE,
     INACTIVE: UserStatus.INACTIVE,
     PENDING: UserStatus.PENDING,
+    SUSPENDED: UserStatus.SUSPENDED,
   },
   OrderStatus: {
     CREATED: OrderStatus.CREATED,
