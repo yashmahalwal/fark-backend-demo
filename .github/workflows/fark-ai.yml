@@ -40,8 +40,8 @@ jobs:
           path: fark-mobile-demo
           token: ${{ secrets.FARK_FRONTEND_GITHUB_TOKEN }}
 
-      - name: Run fark-ai
-        uses: yashmahalwal/fark-ai@main
+      - name: Run fark.ai
+        uses: yashmahalwal/fark.ai@main
         with:
           backend_github_token: ${{ github.token }}
           openai_api_key: ${{ secrets.OPENAI_API_KEY }}
