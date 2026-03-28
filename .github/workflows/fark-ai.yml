@@ -1,7 +1,10 @@
 # Uses the public fark-ai action: https://github.com/yashmahalwal/fark-ai
 # Secrets (repo Settings → Secrets and variables → Actions):
-#   FARK_GITHUB_TOKEN — PAT with repo access for MCP + checkout of frontend repos
-#   OPENAI_API_KEY    — OpenAI API key
+#   FARK_FRONTEND_GITHUB_TOKEN — PAT to clone private frontend repos (actions/checkout); omit if frontends are public
+#   OPENAI_API_KEY             — OpenAI API key
+# Backend API access uses GITHUB_TOKEN (`permissions` below). Fork PRs may be read-only for that token; GitHub MCP may require a PAT instead—see fark-ai README if MCP auth fails.
+#
+# Layout: each repo is a sibling folder under GITHUB_WORKSPACE (nothing at workspace root, nothing nested).
 name: Fark AI — breaking API review
 
 on:
@@ -9,7 +12,8 @@ on:
     types: [opened, synchronize, reopened]
 
 permissions:
-  contents: read
+  pull-requests: write # To create reviews and review comments
+  contents: read # To read the repository's code, files, and diff
 
 jobs:
   fark:
@@ -17,39 +21,41 @@ jobs:
     steps:
       - name: Checkout backend (this PR)
         uses: actions/checkout@v4
+        with:
+          path: backend
 
-      - name: Checkout frontend (web)
+      - name: Checkout fark-frontend-demo
         uses: actions/checkout@v4
         with:
           repository: yashmahalwal/fark-frontend-demo
           ref: main
-          path: frontends/web
-          token: ${{ secrets.FARK_GITHUB_TOKEN }}
+          path: fark-frontend-demo
+          token: ${{ secrets.FARK_FRONTEND_GITHUB_TOKEN }}
 
-      - name: Checkout frontend (mobile)
+      - name: Checkout fark-mobile-demo
         uses: actions/checkout@v4
         with:
           repository: yashmahalwal/fark-mobile-demo
           ref: main
-          path: frontends/mobile
-          token: ${{ secrets.FARK_GITHUB_TOKEN }}
+          path: fark-mobile-demo
+          token: ${{ secrets.FARK_FRONTEND_GITHUB_TOKEN }}
 
       - name: Run fark-ai
         uses: yashmahalwal/fark-ai@main
         with:
-          backend_github_token: ${{ secrets.FARK_GITHUB_TOKEN }}
+          backend_github_token: ${{ github.token }}
           openai_api_key: ${{ secrets.OPENAI_API_KEY }}
           backend_owner: ${{ github.repository_owner }}
           backend_repo: ${{ github.event.repository.name }}
-          backend_codebase_path: ${{ github.workspace }}
+          backend_codebase_path: ${{ github.workspace }}/backend
           frontends: |
             [
               {
                 "repository": { "owner": "yashmahalwal", "repo": "fark-frontend-demo", "branch": "main" },
-                "codebasePath": "frontends/web"
+                "codebasePath": "fark-frontend-demo"
               },
               {
                 "repository": { "owner": "yashmahalwal", "repo": "fark-mobile-demo", "branch": "main" },
-                "codebasePath": "frontends/mobile"
+                "codebasePath": "fark-mobile-demo"
               }
             ]
