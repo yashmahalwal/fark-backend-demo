@@ -52,10 +52,10 @@ jobs:
             [
               {
                 "repository": { "owner": "yashmahalwal", "repo": "fark-frontend-demo", "branch": "main" },
-                "codebasePath": "fark-frontend-demo"
+                "codebasePath": "${{ github.workspace }}/fark-frontend-demo"
               },
               {
                 "repository": { "owner": "yashmahalwal", "repo": "fark-mobile-demo", "branch": "main" },
-                "codebasePath": "fark-mobile-demo"
+                "codebasePath": "${{ github.workspace }}/fark-mobile-demo"
               }
             ]
