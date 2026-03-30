@@ -12,6 +12,7 @@ enum UserStatus {
   USER_STATUS_ACTIVE = 0;
   USER_STATUS_INACTIVE = 1;
   USER_STATUS_PENDING = 2;
+  USER_STATUS_SUSPENDED = 3;
 }
 
 enum PaymentMethod {
@@ -28,10 +29,9 @@ message CreateUserRequest {
   string email = 1;
   string name = 2;
   UserStatus status = 3;
-  optional string description = 4;
-  map<string, string> metadata = 5;
-  repeated string tags = 6;
-  PaymentMethod payment_method = 7;
+  string description = 4;
+  repeated string tags = 5;
+  PaymentMethod payment_method = 6;
 }
 
 message ListUsersRequest {
@@ -44,10 +44,9 @@ message UserResponse {
   string email = 2;
   string name = 3;
   UserStatus status = 4;
-  optional string description = 5;
-  map<string, string> metadata = 6;
-  repeated string tags = 7;
-  PaymentMethod payment_method = 8;
+  string description = 5;
+  repeated string tags = 6;
+  PaymentMethod payment_method = 7;
 }
 
 message ListUsersResponse {
