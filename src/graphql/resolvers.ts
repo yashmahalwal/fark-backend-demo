@@ -57,6 +57,7 @@ export const resolvers = {
             if (err) return reject(err);
             if (!row) return resolve(null);
 
+            const addressData = JSON.parse(row.shipping_address || "{}");
             resolve({
               id: row.id,
               userId: row.user_id,
@@ -64,7 +65,16 @@ export const resolvers = {
               status: row.status,
               total: row.total,
               discountCode: row.discount_code,
-              shippingAddress: JSON.parse(row.shipping_address || "{}"),
+              shippingAddress: {
+                location: {
+                  street: addressData.location?.street || addressData.street || "",
+                  city: addressData.location?.city || addressData.city || "",
+                },
+                postal: {
+                  zipCode: addressData.postal?.zipCode || addressData.zipCode || "",
+                  country: addressData.postal?.country || addressData.country || "",
+                },
+              },
             });
           }
         );
@@ -76,15 +86,27 @@ export const resolvers = {
         db.all("SELECT * FROM orders", [], (err, rows: any[]) => {
           if (err) return reject(err);
           resolve(
-            rows.map((row) => ({
-              id: row.id,
-              userId: row.user_id,
-              productIds: JSON.parse(row.product_ids),
-              status: row.status,
-              total: row.total,
-              discountCode: row.discount_code,
-              shippingAddress: JSON.parse(row.shipping_address || "{}"),
-            }))
+            rows.map((row) => {
+              const addressData = JSON.parse(row.shipping_address || "{}");
+              return {
+                id: row.id,
+                userId: row.user_id,
+                productIds: JSON.parse(row.product_ids),
+                status: row.status,
+                total: row.total,
+                discountCode: row.discount_code,
+                shippingAddress: {
+                  location: {
+                    street: addressData.location?.street || addressData.street || "",
+                    city: addressData.location?.city || addressData.city || "",
+                  },
+                  postal: {
+                    zipCode: addressData.postal?.zipCode || addressData.zipCode || "",
+                    country: addressData.postal?.country || addressData.country || "",
+                  },
+                },
+              };
+            })
           );
         });
       });
@@ -293,6 +315,11 @@ export const resolvers = {
     },
     createOrder: async (_: any, args: any) => {
       const db = getDatabase();
+      
+      if (!args.shippingAddress || !args.shippingAddress.location || !args.shippingAddress.postal) {
+        return Promise.reject(new Error("shippingAddress.location and shippingAddress.postal are required"));
+      }
+      
       return new Promise((resolve, reject) => {
         db.run(
           "INSERT INTO orders (user_id, product_ids, status, total, discount_code, shipping_address) VALUES (?, ?, ?, ?, ?, ?)",
@@ -323,6 +350,11 @@ export const resolvers = {
     },
     updateOrder: async (_: any, args: any) => {
       const db = getDatabase();
+      
+      if (!args.shippingAddress || !args.shippingAddress.location || !args.shippingAddress.postal) {
+        return Promise.reject(new Error("shippingAddress.location and shippingAddress.postal are required"));
+      }
+      
       return new Promise((resolve, reject) => {
         db.run(
           "UPDATE orders SET user_id = ?, product_ids = ?, status = ?, total = ?, discount_code = ?, shipping_address = ? WHERE id = ?",

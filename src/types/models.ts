@@ -50,9 +50,13 @@ export interface Order {
 }
 
 export interface Address {
-  street: string;
-  city: string;
-  zipCode: string;
-  country: string;
+  location: {
+    street: string;
+    city: string;
+  };
+  postal: {
+    zipCode: string;
+    country: string;
+  };
 }
 
