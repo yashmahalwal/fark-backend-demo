@@ -48,6 +48,7 @@ jobs:
           backend_owner: ${{ github.repository_owner }}
           backend_repo: ${{ github.event.repository.name }}
           backend_codebase_path: ${{ github.workspace }}/backend
+          pr_comment_poster_max_total_tokens: 250000
           frontends: |
             [
               {
